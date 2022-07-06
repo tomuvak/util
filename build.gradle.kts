@@ -14,6 +14,13 @@ fun local(key: String): String? = localProperties.getProperty(key)
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/tomuvak/testing-assertions")
+        credentials {
+            username = local("githubUser")
+            password = local("githubToken")
+        }
+    }
 }
 
 kotlin {
@@ -47,6 +54,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("com.tomuvak.testing-assertions:testing-assertions:0.0.2")
             }
         }
         val jvmMain by getting
