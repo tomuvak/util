@@ -15,3 +15,6 @@ fun <T> Sequence<T>.ifNotEmpty(): Sequence<T>? {
 }
 
 fun <T> Sequence<T>.cached(): Sequence<T> = CachingSequence(this)
+
+@Suppress("UNCHECKED_CAST") inline fun <reified T> Sequence<*>.takeWhileIsInstance(): Sequence<T> =
+    takeWhile { it is T } as Sequence<T>

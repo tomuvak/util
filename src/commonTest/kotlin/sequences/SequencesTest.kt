@@ -22,4 +22,24 @@ class SequencesTest {
         }
         assertSame(iterator, assertIs<CachingSequence<Int>>(iterator.asSequence().cached()).iterator)
     }
+
+    @Test fun takeWhileIsInstance() {
+        sequenceOf<Number>().testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }
+        sequenceOf<Number>(1).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues(1) }
+        sequenceOf<Number>(1L).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }
+        sequenceOf<Number>(1, 2).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues(1, 2) }
+        sequenceOf<Number>(1, 2L).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues(1) }
+        sequenceOf<Number>(1L, 2).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }
+        sequenceOf<Number>(1L, 2L).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }
+    }
+
+    @Test fun takeWhileIsInstanceEnumeratesSequenceLazily() {
+        sequence<Number> {
+            fail("Not supposed to be enumerated this far")
+        }.testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertStartsWith() }
+        sequence<Number> {
+            yield(1)
+            fail("Not supposed to be enumerated this far")
+        }.testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertStartsWith(1) }
+    }
 }
