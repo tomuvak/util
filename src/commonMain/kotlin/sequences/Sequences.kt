@@ -13,3 +13,5 @@ fun <T> Sequence<T>.ifNotEmpty(): Sequence<T>? {
         }
     } else null
 }
+
+fun <T> Sequence<T>.cached(): Sequence<T> = CachingSequence(this)

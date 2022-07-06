@@ -3,10 +3,7 @@ package com.tomuvak.util.sequences
 import com.tomuvak.testing.assertions.assertStartsWith
 import com.tomuvak.testing.assertions.assertValues
 import com.tomuvak.testing.assertions.testIntermediateOperation
-import kotlin.test.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.fail
+import kotlin.test.*
 
 class SequencesTest {
     @Test fun ifNotEmptyReturnsNullWhenEmpty() = assertNull(emptySequence<Int>().constrainOnce().ifNotEmpty())
@@ -17,4 +14,12 @@ class SequencesTest {
         yield(1)
         fail("Should not enumerate this far")
     }.testIntermediateOperation({ assertNotNull(ifNotEmpty()) }) { assertStartsWith(1) }
+
+    @Test fun cachedYieldsCachingSequenceForGivenSequence() {
+        val iterator = object : Iterator<Int> {
+            override fun hasNext(): Boolean = fail("Not supposed to actually be called")
+            override fun next(): Int = fail("Not supposed to actually be called")
+        }
+        assertSame(iterator, assertIs<CachingSequence<Int>>(iterator.asSequence().cached()).iterator)
+    }
 }
