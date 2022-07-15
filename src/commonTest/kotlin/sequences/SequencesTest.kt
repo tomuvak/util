@@ -6,6 +6,78 @@ import com.tomuvak.testing.assertions.testIntermediateOperation
 import kotlin.test.*
 
 class SequencesTest {
+    @Test fun singleNoVerifyThrowsWhenEmpty() {
+        assertFailsWith<NoSuchElementException> { emptySequence<Int>().constrainOnce().singleNoVerify() }
+    }
+    @Test fun singleNoVerifyReturnsSingle() = assertEquals(3, sequenceOf(3).constrainOnce().singleNoVerify())
+    @Test fun singleNoVerifyDoesNotCheckFurther() = assertEquals(
+        3,
+        sequence {
+            yield(3)
+            fail("Not supposed to enumerate thus far")
+        }.constrainOnce().singleNoVerify()
+    )
+
+    @Test fun singleNoVerifyWithPredicateWhenEmpty() {
+        assertFailsWith<NoSuchElementException> { emptySequence<Int>().constrainOnce().singleNoVerify {
+            fail("Not supposed to be called")
+        } }
+    }
+    @Test fun singleNoVerifyWithPredicateWithNoMatchingElement() {
+        val testedElements = mutableListOf<Int>()
+        assertFailsWith<NoSuchElementException> { sequenceOf(1, 2, 3).constrainOnce().singleNoVerify {
+            testedElements.add(it)
+            false
+        } }
+        assertEquals(listOf(1, 2, 3), testedElements)
+    }
+    @Test fun singleNoVerifyWithPredicateReturnsMatchingElement() {
+        val testedElements = mutableListOf<Int>()
+        assertEquals(
+            3,
+            sequenceOf(1, 2, 3, 4, 5).constrainOnce().singleNoVerify {
+                testedElements.add(it)
+                it == 3
+            }
+        )
+        assertEquals(listOf(1, 2, 3), testedElements)
+    }
+
+    @Test fun singleNoVerifyOrNullReturnsNullWhenEmpty() =
+        assertNull(emptySequence<Int>().constrainOnce().singleNoVerifyOrNull())
+    @Test fun singleNoVerifyOrNullReturnsSingle() =
+        assertEquals(3, sequenceOf(3).constrainOnce().singleNoVerifyOrNull())
+    @Test fun singleNoVerifyOrNullDoesNotCheckFurther() = assertEquals(
+        3,
+        sequence {
+            yield(3)
+            fail("Not supposed to enumerate thus far")
+        }.constrainOnce().singleNoVerifyOrNull()
+    )
+
+    @Test fun singleNoVerifyOrNullWithPredicateWhenEmpty() = assertNull(
+        emptySequence<Int>().constrainOnce().singleNoVerifyOrNull { fail("Not supposed to be called") }
+    )
+    @Test fun singleNoVerifyOrNullWithPredicateWithNoMatchingElement() {
+        val testedElements = mutableListOf<Int>()
+        assertNull(sequenceOf(1, 2, 3).constrainOnce().singleNoVerifyOrNull {
+            testedElements.add(it)
+            false
+        })
+        assertEquals(listOf(1, 2, 3), testedElements)
+    }
+    @Test fun singleNoVerifyOrNullWithPredicateReturnsMatchingElement() {
+        val testedElements = mutableListOf<Int>()
+        assertEquals(
+            3,
+            sequenceOf(1, 2, 3, 4, 5).constrainOnce().singleNoVerifyOrNull {
+                testedElements.add(it)
+                it == 3
+            }
+        )
+        assertEquals(listOf(1, 2, 3), testedElements)
+    }
+
     @Test fun ifNotEmptyReturnsNullWhenEmpty() = assertNull(emptySequence<Int>().constrainOnce().ifNotEmpty())
     @Test fun ifNotEmptyReturnsEquivalentSequence() = sequenceOf(1, 2, 3).testIntermediateOperation({
         assertNotNull(ifNotEmpty())
