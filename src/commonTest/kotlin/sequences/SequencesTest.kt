@@ -13,7 +13,7 @@ class SequencesTest {
     })
 
     @Test fun singleOrNullIfNoneReturnsNullWhenEmpty() =
-        emptySequence<Int>().testTerminalOperation({ singleOrNullIfNone(mootPredicate) }, ::assertNull)
+        emptySequence<Int>().testTerminalOperation({ singleOrNullIfNone(mootFunction) }, ::assertNull)
     @Test fun singleOrNullIfNoneReturnsNullWhenNone() {
         val testedElements = mutableListOf<Int>()
         sequenceOf(1, 2, 3).testTerminalOperation({ singleOrNullIfNone {
@@ -43,7 +43,7 @@ class SequencesTest {
         sequenceOf(3, 3).testLazyTerminalOperation({ singleOrNullIfMultiple() }, ::assertNull)
 
     @Test fun singleOrNullIfMultipleWithPredicateThrowsWhenEmpty() = emptySequence<Int>().testTerminalOperation({
-        assertFailsWith<NoSuchElementException> { singleOrNullIfMultiple(mootPredicate) }
+        assertFailsWith<NoSuchElementException> { singleOrNullIfMultiple(mootFunction) }
     })
     @Test fun singleOrNullIfMultipleWithPredicateThrowsWhenNone() {
         val testedElements = mutableListOf<Int>()
@@ -74,7 +74,7 @@ class SequencesTest {
         sequenceOf(3, 3).testLazyTerminalOperation({ singleOrNullIfEmptyOrMultiple() }, ::assertNull)
 
     @Test fun singleOrNullIfNoneOrMultipleReturnsNullWhenEmpty() =
-        emptySequence<Int>().testTerminalOperation({ singleOrNullIfNoneOrMultiple(mootPredicate) }, ::assertNull)
+        emptySequence<Int>().testTerminalOperation({ singleOrNullIfNoneOrMultiple(mootFunction) }, ::assertNull)
     @Test fun singleOrNullIfNoneOrMultipleReturnsNullWhenNone() {
         val testedElements = mutableListOf<Int>()
         sequenceOf(1, 2, 3).testTerminalOperation({ singleOrNullIfNoneOrMultiple {
@@ -101,7 +101,7 @@ class SequencesTest {
         sequenceOf(3).testLazyTerminalOperation({ singleNoVerify() }) { assertEquals(3, it) }
 
     @Test fun singleNoVerifyWithPredicateWhenEmpty() = emptySequence<Int>().testTerminalOperation({
-        assertFailsWith<NoSuchElementException> { singleNoVerify(mootPredicate) }
+        assertFailsWith<NoSuchElementException> { singleNoVerify(mootFunction) }
     })
     @Test fun singleNoVerifyWithPredicateWithNoMatchingElement() {
         val testedElements = mutableListOf<Int>()
@@ -121,7 +121,7 @@ class SequencesTest {
         sequenceOf(3).testLazyTerminalOperation({ singleNoVerifyOrNull() }) { assertEquals(3, it) }
 
     @Test fun singleNoVerifyOrNullWithPredicateWhenEmpty() =
-        emptySequence<Int>().testTerminalOperation({ singleNoVerifyOrNull(mootPredicate) }, ::assertNull)
+        emptySequence<Int>().testTerminalOperation({ singleNoVerifyOrNull(mootFunction) }, ::assertNull)
     @Test fun singleNoVerifyOrNullWithPredicateWithNoMatchingElement() {
         val testedElements = mutableListOf<Int>()
         sequenceOf(1, 2, 3).testTerminalOperation({ singleNoVerifyOrNull {
