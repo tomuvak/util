@@ -4,6 +4,9 @@ import com.tomuvak.testing.assertions.*
 import kotlin.test.*
 
 class SequencesTest {
+    private val alwaysFalse: MockFunction<Int, Boolean> = MockFunction { false }
+    private val isThree: MockFunction<Int, Boolean> = MockFunction { it == 3 }
+
     @Test fun singleOrNullIfEmptyReturnsNullWhenEmpty() =
         emptySequence<Int>().testTerminalOperation({ singleOrNullIfEmpty() }, ::assertNull)
     @Test fun singleOrNullIfEmptyReturnsValueWhenSingle() =
@@ -15,20 +18,12 @@ class SequencesTest {
     @Test fun singleOrNullIfNoneReturnsNullWhenEmpty() =
         emptySequence<Int>().testTerminalOperation({ singleOrNullIfNone(mootFunction) }, ::assertNull)
     @Test fun singleOrNullIfNoneReturnsNullWhenNone() {
-        val testedElements = mutableListOf<Int>()
-        sequenceOf(1, 2, 3).testTerminalOperation({ singleOrNullIfNone {
-            testedElements.add(it)
-            false
-        }}, ::assertNull)
-        assertEquals(listOf(1, 2, 3), testedElements)
+        sequenceOf(1, 2, 3).testTerminalOperation({ singleOrNullIfNone(alwaysFalse::invoke) }, ::assertNull)
+        assertEquals(listOf(1, 2, 3), alwaysFalse.calls)
     }
     @Test fun singleOrNullIfNoneReturnsValueWhenSingle() {
-        val testedElements = mutableListOf<Int>()
-        sequenceOf(1, 2, 3, 4, 5).testTerminalOperation({ singleOrNullIfNone {
-            testedElements.add(it)
-            it == 3
-        }}) { assertEquals(3, it) }
-        assertEquals(listOf(1, 2, 3, 4, 5), testedElements)
+        sequenceOf(1, 2, 3, 4, 5).testTerminalOperation({ singleOrNullIfNone(isThree::invoke) }) { assertEquals(3, it) }
+        assertEquals(listOf(1, 2, 3, 4, 5), isThree.calls)
     }
     @Test fun singleOrNullIfNoneThrowsWhenMultiple() = sequenceOf(1, 2, 3, 3).testLazyTerminalOperation({
         assertFailsWith<IllegalArgumentException> { singleOrNullIfNone { it == 3 } }
@@ -46,22 +41,16 @@ class SequencesTest {
         assertFailsWith<NoSuchElementException> { singleOrNullIfMultiple(mootFunction) }
     })
     @Test fun singleOrNullIfMultipleWithPredicateThrowsWhenNone() {
-        val testedElements = mutableListOf<Int>()
         sequenceOf(1, 2, 3).testTerminalOperation({
-            assertFailsWith<NoSuchElementException> { singleOrNullIfMultiple {
-                testedElements.add(it)
-                false
-            } }
+            assertFailsWith<NoSuchElementException> { singleOrNullIfMultiple(alwaysFalse::invoke) }
         })
-        assertEquals(listOf(1, 2, 3), testedElements)
+        assertEquals(listOf(1, 2, 3), alwaysFalse.calls)
     }
     @Test fun singleOrNullIfMultipleWithPredicateReturnsValueWhenSingle() {
-        val testedElements = mutableListOf<Int>()
-        sequenceOf(1, 2, 3, 4, 5).testTerminalOperation({ singleOrNullIfMultiple {
-            testedElements.add(it)
-            it == 3
-        } }) { assertEquals(3, it) }
-        assertEquals(listOf(1, 2, 3, 4, 5), testedElements)
+        sequenceOf(1, 2, 3, 4, 5).testTerminalOperation({
+            singleOrNullIfMultiple(isThree::invoke)
+        }) { assertEquals(3, it) }
+        assertEquals(listOf(1, 2, 3, 4, 5), isThree.calls)
     }
     @Test fun singleOrNullIfMultipleWithPredicateReturnsNullWhenMultiple() =
         sequenceOf(1, 2, 3, 3).testLazyTerminalOperation({ singleOrNullIfMultiple { it == 3 } }, ::assertNull)
@@ -76,20 +65,14 @@ class SequencesTest {
     @Test fun singleOrNullIfNoneOrMultipleReturnsNullWhenEmpty() =
         emptySequence<Int>().testTerminalOperation({ singleOrNullIfNoneOrMultiple(mootFunction) }, ::assertNull)
     @Test fun singleOrNullIfNoneOrMultipleReturnsNullWhenNone() {
-        val testedElements = mutableListOf<Int>()
-        sequenceOf(1, 2, 3).testTerminalOperation({ singleOrNullIfNoneOrMultiple {
-            testedElements.add(it)
-            false
-        } }, ::assertNull)
-        assertEquals(listOf(1, 2, 3), testedElements)
+        sequenceOf(1, 2, 3).testTerminalOperation({ singleOrNullIfNoneOrMultiple(alwaysFalse::invoke) }, ::assertNull)
+        assertEquals(listOf(1, 2, 3), alwaysFalse.calls)
     }
     @Test fun singleOrNullIfNoneOrMultipleReturnsValueWhenSingle() {
-        val testedElements = mutableListOf<Int>()
-        sequenceOf(1, 2, 3, 4, 5).testTerminalOperation({ singleOrNullIfNoneOrMultiple {
-            testedElements.add(it)
-            it == 3
-        } }) { assertEquals(3, it) }
-        assertEquals(listOf(1, 2, 3, 4, 5), testedElements)
+        sequenceOf(1, 2, 3, 4, 5).testTerminalOperation({
+            singleOrNullIfNoneOrMultiple(isThree::invoke)
+        }) { assertEquals(3, it) }
+        assertEquals(listOf(1, 2, 3, 4, 5), isThree.calls)
     }
     @Test fun singleOrNullIfNoneOrMultipleReturnsNullWhenMultiple() =
         sequenceOf(1, 2, 3, 3).testLazyTerminalOperation({ singleOrNullIfNoneOrMultiple { it == 3 }}, ::assertNull)
@@ -104,12 +87,10 @@ class SequencesTest {
         assertFailsWith<NoSuchElementException> { singleNoVerify(mootFunction) }
     })
     @Test fun singleNoVerifyWithPredicateWithNoMatchingElement() {
-        val testedElements = mutableListOf<Int>()
-        sequenceOf(1, 2, 3).testTerminalOperation({ assertFailsWith<NoSuchElementException> { singleNoVerify {
-            testedElements.add(it)
-            false
-        } } })
-        assertEquals(listOf(1, 2, 3), testedElements)
+        sequenceOf(1, 2, 3).testTerminalOperation({
+            assertFailsWith<NoSuchElementException> { singleNoVerify(alwaysFalse::invoke) }
+        })
+        assertEquals(listOf(1, 2, 3), alwaysFalse.calls)
     }
     @Test fun singleNoVerifyWithPredicateReturnsMatchingElement() = sequenceOf(1, 2, 3).testLazyTerminalOperation({
         singleNoVerify { it == 3 }
@@ -123,12 +104,8 @@ class SequencesTest {
     @Test fun singleNoVerifyOrNullWithPredicateWhenEmpty() =
         emptySequence<Int>().testTerminalOperation({ singleNoVerifyOrNull(mootFunction) }, ::assertNull)
     @Test fun singleNoVerifyOrNullWithPredicateWithNoMatchingElement() {
-        val testedElements = mutableListOf<Int>()
-        sequenceOf(1, 2, 3).testTerminalOperation({ singleNoVerifyOrNull {
-            testedElements.add(it)
-            false
-        } }, ::assertNull)
-        assertEquals(listOf(1, 2, 3), testedElements)
+        sequenceOf(1, 2, 3).testTerminalOperation({ singleNoVerifyOrNull(alwaysFalse::invoke) }, ::assertNull)
+        assertEquals(listOf(1, 2, 3), alwaysFalse.calls)
     }
     @Test fun singleNoVerifyOrNullWithPredicateReturnsMatchingElement() =
         sequenceOf(1, 2, 3).testLazyTerminalOperation({ singleNoVerifyOrNull { it == 3 } }) { assertEquals(3, it) }
