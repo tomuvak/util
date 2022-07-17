@@ -144,8 +144,8 @@ class SequencesTest {
 
     @Test fun cachedYieldsCachingSequenceForGivenSequence() {
         val iterator = object : Iterator<Int> {
-            override fun hasNext(): Boolean = fail("Not supposed to actually be called")
-            override fun next(): Int = fail("Not supposed to actually be called")
+            override fun hasNext(): Boolean = mootProvider()
+            override fun next(): Int = mootProvider()
         }
         assertSame(iterator, assertIs<CachingSequence<Int>>(iterator.asSequence().cached()).iterator)
     }
