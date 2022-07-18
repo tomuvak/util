@@ -126,6 +126,10 @@ class SequencesTest {
         }
         assertSame(iterator, assertIs<CachingSequence<Int>>(iterator.asSequence().cached()).iterator)
     }
+    @Test fun cachedYieldsSameSequenceWhenAlreadyCached() {
+        val sequence = CachingSequence(Sequence<Int>(mootProvider))
+        assertSame(sequence, sequence.cached())
+    }
 
     @Test fun takeWhileIsInstance() {
         sequenceOf<Number>().testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }

@@ -180,7 +180,7 @@ fun <T> Sequence<T>.ifNotEmpty(): Sequence<T>? {
  * once, and, during the first (and only) iteration, not to be iterated over further than is necessary (that is this
  * operation, while not _stateless_, is _intermediate_).
  */
-fun <T> Sequence<T>.cached(): Sequence<T> = CachingSequence(this)
+fun <T> Sequence<T>.cached(): Sequence<T> = if (this is CachingSequence<T>) this else CachingSequence(this)
 
 /**
  * Yields all elements of the receiver sequence [this] before the first one which is not of type [T] (if any; yields all
