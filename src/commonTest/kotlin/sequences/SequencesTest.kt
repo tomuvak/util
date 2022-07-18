@@ -163,6 +163,11 @@ class SequencesTest {
         sequenceOf(0, 0, 1, 0, 1, 2, 0, 1, 2, 3).testIntermediateOperation({ distinct(4) }) { assertValues(0, 1, 2, 3)}
         sequenceOf(0, 0, 1, 0, 1, 2, 0, 1, 2).testLazyIntermediateOperation({ distinct(3) }) { assertValues(0, 1, 2)}
     }
+    @Test fun distinctIterationCanBeRequeriedForExhaustionAfterExhaustion() {
+        val iterator = emptySequence<Int>().distinct(10).iterator()
+        assertFalse(iterator.hasNext())
+        assertFalse(iterator.hasNext())
+    }
 
     @Test fun distinctByRequiresPositiveArgument() {
         for (i in -3..0)
@@ -184,5 +189,10 @@ class SequencesTest {
         sequenceOf(0, 1, 2, 0, 3, 4, 1, 2, 5).testLazyIntermediateOperation({
             distinctBy(3) { it / 2 }
         }) { assertValues(0, 2, 4)}
+    }
+    @Test fun distinctByIterationCanBeRequeriedForExhaustionAfterExhaustion() {
+        val iterator = emptySequence<Int>().distinctBy(10) { it / 2 }.iterator()
+        assertFalse(iterator.hasNext())
+        assertFalse(iterator.hasNext())
     }
 }
