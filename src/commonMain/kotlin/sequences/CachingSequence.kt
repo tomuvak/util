@@ -6,7 +6,7 @@ package com.tomuvak.util.sequences
  * and, during the first (and only) iteration, not to be iterated over further than is necessary.
  */
 class CachingSequence<T>(original: Sequence<T>): Sequence<T> {
-    internal val iterator: Iterator<T> = original.iterator()
+    internal val iterator: Iterator<T> by lazy { original.iterator() }
     private val cache: MutableList<T> = mutableListOf()
 
     private inner class CachingSequenceIterator: Iterator<T> {

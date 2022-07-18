@@ -2,6 +2,7 @@ package com.tomuvak.util.sequences
 
 import com.tomuvak.testing.assertions.assertStartsWith
 import com.tomuvak.testing.assertions.assertValues
+import com.tomuvak.testing.assertions.mootProvider
 import kotlin.math.max
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,6 +27,10 @@ class CachingSequenceTest {
         CachingSequence(sequenceOf(1).constrainOnce()).assertReiterableWithSameElements()
         CachingSequence(sequenceOf(1, 2).constrainOnce()).assertReiterableWithSameElements()
         CachingSequence(sequenceOf(1, 2, 3).constrainOnce()).assertReiterableWithSameElements()
+    }
+
+    @Test fun cachingSequenceDoesNotTryToIterateOriginalSequenceBeforeItHasTo() {
+        CachingSequence(Sequence<Int>(mootProvider))
     }
 
     @Test fun cachingSequenceEnumeratesOriginalSequenceLazily() {
