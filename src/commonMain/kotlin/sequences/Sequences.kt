@@ -188,3 +188,51 @@ fun <T> Sequence<T>.cached(): Sequence<T> = if (this is CachingSequence<T>) this
  */
 @Suppress("UNCHECKED_CAST") inline fun <reified T> Sequence<*>.takeWhileIsInstance(): Sequence<T> =
     takeWhile { it is T } as Sequence<T>
+
+/**
+ * Returns a sequence which yields the exact same elements as the receiver sequence [this], in the same order, but
+ * without repetitions – that is elements which have already appeared before are filtered out, and also stopping as soon
+ * as [maxConsecutiveAttempts] (which has to be positive) consecutive elements have been filtered out this way, if ever.
+ *
+ * This is similar to the standard library's `distinct` extension function, but with the added functionality of the
+ * returned sequence stopping when [maxConsecutiveAttempts] consecutive elements are repetitions of past elements. One
+ * case where this is useful is when the receiver sequence [this] is potentially infinite but containing only a finite
+ * number of _distinct_ elements: in that case the standard library's `.distinct()` will return a sequence which enters
+ * an infinite loop (after retrieving all unique values, trying to retrieve the next value will not fail – it will
+ * simply never return), whereas the sequence returned by this function will stop (note that this does **not** mean that
+ * the returned sequence can never be infinite: it will be if the original sequence is itself infinite and _keeps
+ * yielding **distinct** values_). Of course, this feature also means that it's possible for the returned sequence
+ * _not_ to contain all distinct values contained in the original: any new value which follows more than
+ * [maxConsecutiveAttempts] consecutive old values will be missed.
+ *
+ * This operation is _intermediate_ but _stateful_.
+ */
+fun <T> Sequence<T>.distinct(maxConsecutiveAttempts: Int): Sequence<T> {
+    require(maxConsecutiveAttempts > 0) { "maxConsecutiveAttempts must be positive (was $maxConsecutiveAttempts)" }
+    return DistinctSequence(this, maxConsecutiveAttempts)
+}
+
+private class DistinctSequence<T>(
+    private val source: Sequence<T>,
+    private val maxConsecutiveAttempts: Int
+): Sequence<T> { override fun iterator(): Iterator<T> = DistinctIterator(source.iterator(), maxConsecutiveAttempts) }
+
+private class DistinctIterator<T>(
+    private val source: Iterator<T>,
+    private val maxConsecutiveAttempts: Int
+): AbstractIterator<T>() {
+    val pastValues = mutableSetOf<T>()
+    var numAttempts = 0
+
+    override fun computeNext() {
+        while (source.hasNext()) {
+            val currentElement = source.next()
+            if (pastValues.add(currentElement)) {
+                setNext(currentElement)
+                numAttempts = 0
+                return
+            } else if (++numAttempts >= maxConsecutiveAttempts) break
+        }
+        done()
+    }
+}

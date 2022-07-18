@@ -145,4 +145,22 @@ class SequencesTest {
         emptySequence<Number>().testLazyIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertStartsWith() }
         sequenceOf<Number>(1).testLazyIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertStartsWith(1) }
     }
+
+    @Test fun distinctRequiresPositiveArgument() {
+        for (i in -3..0)
+            assertFailsWithTypeAndMessageContaining<IllegalArgumentException>("positive", i) {
+                Sequence<Int>(mootProvider).distinct(i)
+            }
+    }
+    @Test fun distinctIsIndeedDistinct() =
+        sequenceOf(0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4).testIntermediateOperation({
+            distinct(10)
+        }) { assertValues(0, 1, 2, 3, 4) }
+    @Test fun distinctIsLazy() = sequenceOf(0, 0, 1, 0, 1, 2).testLazyIntermediateOperation({ distinct(10) }) {
+        assertStartsWith(0, 1, 2)
+    }
+    @Test fun distinctStopsAfterMaxConsecutiveAttempts() {
+        sequenceOf(0, 0, 1, 0, 1, 2, 0, 1, 2, 3).testIntermediateOperation({ distinct(4) }) { assertValues(0, 1, 2, 3)}
+        sequenceOf(0, 0, 1, 0, 1, 2, 0, 1, 2).testLazyIntermediateOperation({ distinct(3) }) { assertValues(0, 1, 2)}
+    }
 }
