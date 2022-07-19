@@ -6,53 +6,47 @@ import com.tomuvak.testing.assertions.mootProvider
 import kotlin.math.max
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.test.assertSame
 
 class CachingTest {
-    @Test fun cachingSequenceHasSameElements() {
-        CachingSequence(emptySequence<Int>()).assertValues()
-        CachingSequence(sequenceOf(1)).assertValues(1)
-        CachingSequence(sequenceOf(1, 2)).assertValues(1, 2)
-        CachingSequence(sequenceOf(1, 2, 3)).assertValues(1, 2, 3)
+    @Test fun cachedSequenceHasSameElements() {
+        emptySequence<Int>().cached().assertValues()
+        sequenceOf(1).cached().assertValues(1)
+        sequenceOf(1, 2).cached().assertValues(1, 2)
+        sequenceOf(1, 2, 3).cached().assertValues(1, 2, 3)
     }
-    @Test fun cachingSequenceYieldsSameElementsOnReiteration() {
-        CachingSequence(emptySequence<Int>()).assertReiterableWithSameElements()
-        CachingSequence(sequenceOf(1)).assertReiterableWithSameElements()
-        CachingSequence(sequenceOf(1, 2)).assertReiterableWithSameElements()
-        CachingSequence(sequenceOf(1, 2, 3)).assertReiterableWithSameElements()
+
+    @Test fun cachedSequenceYieldsSameElementsOnReiteration() {
+        emptySequence<Int>().cached().assertReiterableWithSameElements()
+        sequenceOf(1).cached().assertReiterableWithSameElements()
+        sequenceOf(1, 2).cached().assertReiterableWithSameElements()
+        sequenceOf(1, 2, 3).cached().assertReiterableWithSameElements()
     }
-    @Test fun cachingSequenceDoesNotReiterateOriginalSequence() {
-        CachingSequence(emptySequence<Int>().constrainOnce()).assertReiterableWithSameElements()
-        CachingSequence(sequenceOf(1).constrainOnce()).assertReiterableWithSameElements()
-        CachingSequence(sequenceOf(1, 2).constrainOnce()).assertReiterableWithSameElements()
-        CachingSequence(sequenceOf(1, 2, 3).constrainOnce()).assertReiterableWithSameElements()
+
+    @Test fun cachedSequenceDoesNotReiterateOriginalSequence() {
+        emptySequence<Int>().constrainOnce().cached().assertReiterableWithSameElements()
+        sequenceOf(1).constrainOnce().cached().assertReiterableWithSameElements()
+        sequenceOf(1, 2).constrainOnce().cached().assertReiterableWithSameElements()
+        sequenceOf(1, 2, 3).constrainOnce().cached().assertReiterableWithSameElements()
     }
-    @Test fun cachingSequenceDoesNotTryToIterateOriginalSequenceBeforeItHasTo() {
-        CachingSequence(Sequence<Int>(mootProvider))
-    }
-    @Test fun cachingSequenceEnumeratesOriginalSequenceLazily() {
+
+    @Test fun cachedSequenceDoesNotTryToIterateOriginalSequenceBeforeItHasTo() { Sequence<Int>(mootProvider).cached() }
+
+    @Test fun cachedSequenceEnumeratesOriginalSequenceLazily() {
         var lastEnumerated = -1
-        val cachingSequence = CachingSequence(sequenceOf(0, 1, 2).onEach { lastEnumerated = max(lastEnumerated, it) })
-        cachingSequence.assertStartsWith()
+        val cachedSequence = sequenceOf(0, 1, 2).onEach { lastEnumerated = max(lastEnumerated, it) }.cached()
+        cachedSequence.assertStartsWith()
         assertEquals(-1, lastEnumerated)
-        cachingSequence.assertStartsWith(0)
+        cachedSequence.assertStartsWith(0)
         assertEquals(0, lastEnumerated)
-        cachingSequence.assertStartsWith(0, 1)
+        cachedSequence.assertStartsWith(0, 1)
         assertEquals(1, lastEnumerated)
-        cachingSequence.assertStartsWith(0, 1, 2)
+        cachedSequence.assertStartsWith(0, 1, 2)
         assertEquals(2, lastEnumerated)
     }
 
-    @Test fun cachedYieldsCachingSequenceForGivenSequence() {
-        val iterator = object : Iterator<Int> {
-            override fun hasNext(): Boolean = mootProvider()
-            override fun next(): Int = mootProvider()
-        }
-        assertSame(iterator, assertIs<CachingSequence<Int>>(iterator.asSequence().cached()).iterator)
-    }
-    @Test fun cachedYieldsSameSequenceWhenAlreadyCached() {
-        val sequence = CachingSequence(Sequence<Int>(mootProvider))
+    @Test fun cachedSequenceIsOriginalSequenceWhenAlreadyCached() {
+        val sequence = Sequence<Int>(mootProvider).cached()
         assertSame(sequence, sequence.cached())
     }
 
