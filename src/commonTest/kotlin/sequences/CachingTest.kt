@@ -3,7 +3,6 @@ package com.tomuvak.util.sequences
 import com.tomuvak.testing.assertions.assertStartsWith
 import com.tomuvak.testing.assertions.assertValues
 import com.tomuvak.testing.assertions.mootProvider
-import kotlin.math.max
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -34,7 +33,7 @@ class CachingTest {
 
     @Test fun cachedSequenceEnumeratesOriginalSequenceLazily() {
         var lastEnumerated = -1
-        val cachedSequence = sequenceOf(0, 1, 2).onEach { lastEnumerated = max(lastEnumerated, it) }.cached()
+        val cachedSequence = sequenceOf(0, 1, 2).onEach { lastEnumerated = it }.cached()
         cachedSequence.assertStartsWith()
         assertEquals(-1, lastEnumerated)
         cachedSequence.assertStartsWith(0)
