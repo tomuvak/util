@@ -17,3 +17,11 @@ class CachingSequence<T>(original: Sequence<T>): Sequence<T> {
 
     override fun iterator(): Iterator<T> = CachingSequenceIterator()
 }
+
+/**
+ * Returns a sequence which yields the exact same elements as the receiver sequence [this] and is iterable multiple
+ * times – even if the original sequence is not. The original sequence is guaranteed not to be iterated over more than
+ * once, and, during the first (and only) iteration, not to be iterated over further than is necessary (that is this
+ * operation, while not _stateless_, is _intermediate_).
+ */
+fun <T> Sequence<T>.cached(): Sequence<T> = if (this is CachingSequence<T>) this else CachingSequence(this)
