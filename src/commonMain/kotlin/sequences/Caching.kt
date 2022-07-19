@@ -3,7 +3,14 @@ package com.tomuvak.util.sequences
 /**
  * Returns a sequence which yields the exact same elements as the receiver sequence [this] and is iterable multiple
  * times – even if the original sequence is not. The original sequence is guaranteed not to be iterated over more than
- * once, and, during the first (and only) iteration, not to be iterated over further than is necessary.
+ * once, and, at any point during the first (and only) iteration, not to be iterated over further than is necessary.
+ *
+ * The behavior of the returned sequence in case iterating the original sequence throws an error at any point is
+ * undefined.
+ *
+ * The elements of the original sequence are accessible as long as the returned sequence (or an iterator thereof) is
+ * alive. To allow them to be garbage-collected, make sure not to keep references to the returned sequence once it's no
+ * longer needed.
  *
  * This operation is _intermediate_ and _stateful_.
  */
