@@ -38,6 +38,11 @@ kotlin {
             commonWebpackConfig {
                 cssSupport.enabled = true
             }
+            testTask {
+                useMocha {
+                    timeout = "30s"
+                }
+            }
         }
     }
     val hostOs = System.getProperty("os.name")
@@ -54,7 +59,10 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 implementation("com.tomuvak.testing-assertions:testing-assertions:0.0.4")
+                implementation("com.tomuvak.testing-coroutines:testing-coroutines:0.0.1")
+                implementation("com.tomuvak.testing-gc:testing-gc:0.0.1")
             }
         }
         val jvmMain by getting
