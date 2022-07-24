@@ -21,6 +21,14 @@ Another example: the standard library offers a standard way to constrain a Seque
 [reverse](https://github.com/tomuvak/util/commit/6b11eb289b95a6c6a28e0500da20803ca31597dd) – the ability to take a
 Sequence which is potentially only iterable once and wrap it in a structure which allows iterating over it multiple
 times – complements it nicely.
+Yet another example: the functionality of [weak references](https://en.wikipedia.org/wiki/Weak_reference) is available
+for the JVM through the
+[Java standard library](https://docs.oracle.com/javase/8/docs/api/java/lang/ref/WeakReference.html), it exists also in
+[JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakRef), and it is
+offered by the standard library for
+[Native](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native.ref/-weak-reference/). A
+[unified interface for it](https://github.com/tomuvak/util/commit/8dcf88b523b8ad36a3565a1f229411f335a032d3) which can be
+used seamlessly in multi-platform code is strongly called for.
 Again, all according to the author's subjective view.
 
 Criterion no. 1 alone is not enough for inclusion in this library. There's lots of functionality that could reasonably
