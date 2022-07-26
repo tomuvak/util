@@ -1,16 +1,21 @@
 package com.tomuvak.util
 
+import com.tomuvak.testing.assertions.assertValues
 import com.tomuvak.testing.assertions.scriptedFunction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TuplesTest {
+    @Test fun pairAsSequence() = Pair(1, 2).asSequence().assertValues(1, 2)
+
     @Test fun mapsPair() = assertEquals(Pair("one", "two"), Pair(1, 2).map(scriptedFunction(1 to "one", 2 to "two")))
     @Test fun flatMapsPair() = assertEquals(
         Pair("one", "four"),
         Pair(1, 2).flatMap(scriptedFunction(1 to Pair("one", "two"), 2 to Pair("three", "four")))
     )
     @Test fun flattensPair() = assertEquals(Pair(1, 4), Pair(Pair(1, 2), Pair(3, 4)).flatten())
+
+    @Test fun tripleAsSequence() = Triple(1, 2, 3).asSequence().assertValues(1, 2, 3)
 
     @Test fun mapsTriple() = assertEquals(
         Triple("one", "two", "three"),
