@@ -22,3 +22,21 @@ private class MultiTransformSequences<T, R>(source: Sequence<T>, transforms: Lis
     private val cached = source.cached(transforms.size)
     val transformedSequences: List<Sequence<R>> = transforms.map { it(cached.constrainOnce()) }
 }
+
+/**
+ * Partitions the receiver sequence [this] into a pair of sequences, the `first` of which containing all elements which
+ * satisfy the given [predicate], and the `second` one those elements which don't. Each of the returned sequences can
+ * only be iterated over once.
+ *
+ * Similar to the standard library's [partition], but returns a pair of [Sequence]s rather than [List]s, and does not at
+ * any point iterate the original sequence further than is necessary in order to yield the elements iterated over (in
+ * the returned sequences) until that point.
+ *
+ * This operation is _intermediate_ (hence the name) and _stateful_ (as opposed to the standard library's [partition],
+ * which is _terminal_).
+ */
+fun <T> Sequence<T>.partitionIntermediate(predicate: (T) -> Boolean): Pair<Sequence<T>, Sequence<T>> =
+    map { it to predicate(it) }.transform(listOf(
+        { it.filter { it.second } },
+        { it.filterNot {it.second } }
+    )).map { it.map { it.first } }.let { Pair(it[0], it[1]) }

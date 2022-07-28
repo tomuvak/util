@@ -42,3 +42,6 @@ internal suspend fun WeakReference<Any>.assertTargetNotReclaimable() = assertFal
 internal suspend fun WeakReference<Any>.assertTargetReclaimable() = assertTrue(targetIsReclaimable())
 private suspend fun WeakReference<Any>.targetIsReclaimable(): Boolean =
     coroutineScope { tryToAchieveByForcingGc { targetOrNull == null } }
+
+internal suspend fun <T : Any> Collection<WeakReference<T>>.assertAllTargetsReclaimable() =
+    assertTrue(coroutineScope { tryToAchieveByForcingGc { all { it.targetOrNull == null } } })
