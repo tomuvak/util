@@ -1,20 +1,15 @@
 package com.tomuvak.util
 
 import com.tomuvak.testing.coroutines.asyncTest
-import com.tomuvak.testing.gc.tryToAchieveByForcingGc
-import kotlinx.coroutines.coroutineScope
 import kotlin.test.*
 
 class WeakReferenceTest {
-    @Test fun weakReference() = asyncTest {
-        val reference = generateAndVerifyWeakReference()
-        assertTrue(tryToAchieveByForcingGc { reference.targetOrNull == null })
-    }
+    @Test fun weakReference() = asyncTest { generateAndVerifyWeakReference().assertTargetReclaimable() }
 
     private suspend fun generateAndVerifyWeakReference(): WeakReference<Any> {
         val data = Any()
         val reference = WeakReference(data)
-        assertFalse(coroutineScope { tryToAchieveByForcingGc { reference.targetOrNull == null } })
+        reference.assertTargetNotReclaimable()
         assertSame(data, assertNotNull(reference.targetOrNull))
         return reference
     }

@@ -3,8 +3,9 @@ package com.tomuvak.util.sequences
 import com.tomuvak.testing.assertions.assertValues
 import com.tomuvak.testing.assertions.mootProvider
 import com.tomuvak.testing.coroutines.asyncTest
-import com.tomuvak.testing.gc.tryToAchieveByForcingGc
-import com.tomuvak.util.WeakReference
+import com.tomuvak.util.assertTargetOnlyReclaimableAfter
+import com.tomuvak.util.dismissNext
+import com.tomuvak.util.generateSequenceAndWeakReferences
 import kotlin.test.*
 
 class MultiTransformsTest {
@@ -54,32 +55,17 @@ class MultiTransformsTest {
     }
 
     @Test fun transformForgetsNoLongerNeededSourceElements() = asyncTest {
-        fun generateElementWithReference(): Pair<Any, WeakReference<Any>> = Any().let { it to WeakReference(it) }
-        fun <T> Iterator<T>.dismissNext() { next() } // Needs to be in a separate function to avoid hidden references
-
-        val references = mutableListOf<WeakReference<Any>>()
-        val source = sequence { repeat(3) { yield(generateElementWithReference())} }.map { (element, reference) ->
-            assertSame(element, assertNotNull(reference.targetOrNull))
-            references.add(reference)
-            element
-        }
-
+        val (source, references) = generateSequenceAndWeakReferences(3)
         val iterators = source.transform(listOf({ it }, { it })).map { it.iterator() }
 
         iterators[0].dismissNext()
-        assertFalse(tryToAchieveByForcingGc { references[0].targetOrNull == null })
-        iterators[1].dismissNext()
-        assertTrue(tryToAchieveByForcingGc { references[0].targetOrNull == null })
+        references[0].assertTargetOnlyReclaimableAfter { iterators[1].dismissNext() }
 
         iterators[1].dismissNext()
-        assertFalse(tryToAchieveByForcingGc { references[1].targetOrNull == null })
-        iterators[0].dismissNext()
-        assertTrue(tryToAchieveByForcingGc { references[1].targetOrNull == null })
+        references[1].assertTargetOnlyReclaimableAfter { iterators[0].dismissNext() }
 
         iterators[0].dismissNext()
-        assertFalse(tryToAchieveByForcingGc { references[2].targetOrNull == null })
-        iterators[1].dismissNext()
-        assertTrue(tryToAchieveByForcingGc { references[2].targetOrNull == null })
+        references[2].assertTargetOnlyReclaimableAfter { iterators[1].dismissNext() }
     }
 
     private fun thenHasTransformedCorrectly(transformed: List<Sequence<Int>>) {
