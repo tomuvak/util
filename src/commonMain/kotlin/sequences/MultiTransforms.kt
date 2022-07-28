@@ -40,3 +40,20 @@ fun <T> Sequence<T>.partitionIntermediate(predicate: (T) -> Boolean): Pair<Seque
         { it.filter { it.second } },
         { it.filterNot {it.second } }
     )).map { it.map { it.first } }.let { Pair(it[0], it[1]) }
+
+/**
+ * Returns a pair of sequences, the `first` of which containing the `first` components of the elements of the receiver
+ * sequence [this], and the `second` one the `second` components thereof. Each of the returned sequences can only be
+ * iterated over once.
+ *
+ * Similar to the standard library's [unzip], but returns a pair of [Sequence]s rather than [List]s, and does not at any
+ * point iterate the original sequence further than is necessary in order to yield the elements iterated over (in the
+ * returned sequences) until that point.
+ *
+ * This operation is _intermediate_ (hence the name) and _stateful_ (as opposed to the standard library's [unzip], which
+ * is _terminal_).
+ */
+fun <T1, T2> Sequence<Pair<T1, T2>>.unzipIntermediate(): Pair<Sequence<T1>, Sequence<T2>> = transform(listOf(
+    { it.map { it.first } },
+    { it.map { it.second } }
+)).let { @Suppress("UNCHECKED_CAST") Pair(it[0] as Sequence<T1>, it[1] as Sequence<T2>) }

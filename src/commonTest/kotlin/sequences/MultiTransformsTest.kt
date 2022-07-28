@@ -49,7 +49,7 @@ class MultiTransformsTest {
         transformed.iterator()
     }
     @Test fun transformForgetsNoLongerNeededSourceElements() = asyncTest {
-        val (source, references) = generateSequenceAndWeakReferences(3)
+        val (source, references) = generateSequenceAndWeakReferences(3) { Any() }
         val iterators = source.transform(listOf({ it }, { it })).map { it.iterator() }
 
         iterators[0].dismissNext()
@@ -103,7 +103,7 @@ class MultiTransformsTest {
         sequenceOf(1, 2).partitionIntermediate(scriptedFunction(1 to true, 2 to false)).map { it.toList() }
     )
     @Test fun partitionIntermediateForgetsSourceElements() = asyncTest {
-        val (source, references) = generateSequenceAndWeakReferences(3)
+        val (source, references) = generateSequenceAndWeakReferences(3) { Any() }
         val iterators = source.partitionIntermediate { true }.map { it.iterator() }
 
         repeat(3) { iterators.first.dismissNext() }
@@ -113,6 +113,57 @@ class MultiTransformsTest {
 
         // Prevent earlier garbage collection, which would make the test pass for the wrong reason
         @Suppress("UNUSED_EXPRESSION") iterators
+    }
+
+    @Test fun unzipIntermediateUnzips() {
+        for (source in listOf(
+            emptySequence(),
+            sequenceOf(1 to "a"),
+            sequenceOf(1 to "a", 2 to "b"),
+            sequenceOf(1 to "a", 2 to "b", 3 to "c")
+        )) {
+            val unzipped = source.unzip()
+            val unzippedIntermediate = source.unzipIntermediate().map { it.toList() }
+            assertEquals(unzipped, unzippedIntermediate)
+        }
+    }
+    @Test fun unzipIntermediateDoesNotIterateSourceMultipleTimes() {
+        val source = sequenceOf(1 to "a", 2 to "b", 3 to "c")
+        val unzipped = source.unzip()
+        val unzippedIntermediate = source.constrainOnce().unzipIntermediate().map { it.toList() }
+        assertEquals(unzipped, unzippedIntermediate)
+    }
+    @Test fun unzipIntermediateDoesNotIterateSourceBeforeItHasTo() {
+        Sequence<Pair<Int, String>>(mootProvider).unzipIntermediate()
+    }
+    @Test fun unzipIntermediateDoesNotIterateSourceFurtherThanItHasTo() {
+        var numEnumerated = 0
+        val source = sequenceOf(1 to "a", 2 to "b", 3 to "c", 4 to "d").onEach { numEnumerated++ }
+        val (firsts, seconds) = source.unzipIntermediate().map { it.iterator() }
+        assertEquals(0, numEnumerated)
+
+        assertEquals(1, firsts.next())
+        assertEquals("a", seconds.next())
+        assertEquals(1, numEnumerated)
+
+        assertEquals("b", seconds.next())
+        assertEquals(2, numEnumerated)
+
+        assertEquals("c", seconds.next())
+        assertEquals(2, firsts.next())
+        assertEquals(3, firsts.next())
+        assertEquals(3, numEnumerated)
+    }
+    @Test fun unzipIntermediateForgetsSourceElements() = asyncTest {
+        val (source, references) = generateSequenceAndWeakReferences(3) { Pair(it, 2 * it) }
+        val iterators = source.unzipIntermediate().map { it.iterator() }
+
+        iterators.first.dismissNext()
+        references[0].assertTargetOnlyReclaimableAfter { iterators.second.dismissNext() }
+        iterators.second.dismissNext()
+        references[1].assertTargetOnlyReclaimableAfter { iterators.first.dismissNext() }
+        iterators.first.dismissNext()
+        references[2].assertTargetOnlyReclaimableAfter { iterators.second.dismissNext() }
     }
 
     private fun thenHasTransformedCorrectly(transformed: List<Sequence<Int>>) {
