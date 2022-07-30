@@ -8,7 +8,7 @@ import com.tomuvak.testing.coroutines.asyncTest
 import com.tomuvak.util.*
 import kotlin.test.*
 
-class MultiTransformsTest {
+class TransformTest {
     private val source: Sequence<String> = sequenceOf("abc", "", "x", "tyuiop")
     private val transforms: List<(Sequence<String>) -> Sequence<Int>> = listOf(
         { it.map { it.length } },
@@ -17,9 +17,12 @@ class MultiTransformsTest {
     )
 
     @Test fun transformTransforms() = thenHasTransformedCorrectly(source.transform(transforms))
+
     @Test fun transformDoesNotIterateSourceMultipleTimes() =
         thenHasTransformedCorrectly(source.constrainOnce().transform(transforms))
+
     @Test fun transformDoesNotIterateSourceBeforeItHasTo() { Sequence<String>(mootProvider).transform(transforms) }
+
     @Test fun transformDoesNotIterateSourceFurtherThanItHasTo() {
         var numEnumerated = 0
 
@@ -38,16 +41,19 @@ class MultiTransformsTest {
         assertEquals(1, iterators[0].next())
         assertEquals(3, numEnumerated)
     }
+
     @Test fun transformDoesNotLetSingleTransformIterateSequenceTwice() {
         val transformed = source.transform(transforms)[0]
         transformed.iterator()
         assertFailsWith<IllegalStateException> { transformed.iterator() }
     }
+
     @Test fun transformResultCanBeIteratedMultipleTimesIfDoesNotRequireReiterationOfSource() {
         val transformed = source.transform(listOf({ it.cached() }))[0]
         transformed.iterator()
         transformed.iterator()
     }
+
     @Test fun transformForgetsNoLongerNeededSourceElements() = asyncTest {
         val (source, references) = generateSequenceAndWeakReferences(3) { Any() }
         val iterators = source.transform(listOf({ it }, { it })).map { it.iterator() }
@@ -62,6 +68,14 @@ class MultiTransformsTest {
         references[2].assertTargetOnlyReclaimableAfter { iterators[1].dismissNext() }
     }
 
+    private fun thenHasTransformedCorrectly(transformed: List<Sequence<Int>>) {
+        assertEquals(transforms.size, transformed.size)
+        for ((transform, result) in transforms.zip(transformed))
+            result.assertValues(*transform(source).toList().toTypedArray())
+    }
+}
+
+class PartitionIntermediateTest {
     @Test fun partitionIntermediatePartitions() {
         for (source in listOf(emptySequence(), sequenceOf(0), sequenceOf(1), sequenceOf(1, 2, 4, 3, 7, 5, 6, 0))) {
             val partitions = source.partition { it % 2 == 0 }
@@ -69,15 +83,18 @@ class MultiTransformsTest {
             assertEquals(partitions, partitionsIntermediate)
         }
     }
+
     @Test fun partitionIntermediateDoesNotIterateSourceMultipleTimes() {
         val source = sequenceOf(1, 2, 4, 3, 7, 5, 6, 0)
         val partitions = source.partition { it % 2 == 0 }
         val partitionsIntermediate = source.constrainOnce().partitionIntermediate { it % 2 == 0 }.map { it.toList() }
         assertEquals(partitions, partitionsIntermediate)
     }
+
     @Test fun partitionIntermediateDoesNotIterateSourceBeforeItHasTo() {
         Sequence<Int>(mootProvider).partitionIntermediate(mootFunction)
     }
+
     @Test fun partitionIntermediateDoesNotIterateSourceFurtherThanItHasTo() {
         var numEnumerated = 0
         val source = sequenceOf(1, 2, 4, 3, 7, 5, 6, 0).onEach { numEnumerated++ }
@@ -98,10 +115,12 @@ class MultiTransformsTest {
         assertEquals(6, evens.next())
         assertEquals(7, numEnumerated)
     }
+
     @Test fun partitionIntermediateOnlyEvaluatesPredicateOncePerElement() = assertEquals(
         Pair(listOf(1), listOf(2)),
         sequenceOf(1, 2).partitionIntermediate(scriptedFunction(1 to true, 2 to false)).map { it.toList() }
     )
+
     @Test fun partitionIntermediateForgetsSourceElements() = asyncTest {
         val (source, references) = generateSequenceAndWeakReferences(3) { Wrapper(it) }
         val (evens, odds) = source.partitionIntermediate { it.value % 2 == 0 }.map { it.iterator() }
@@ -111,7 +130,9 @@ class MultiTransformsTest {
         references[1].assertTargetOnlyReclaimableAfter { evens.dismissNext() }
         references[2].assertTargetOnlyReclaimableAfter { assertFalse(odds.hasNext()) }
     }
+}
 
+class UnzipIntermediateTest {
     @Test fun unzipIntermediateUnzips() {
         for (source in listOf(
             emptySequence(),
@@ -124,15 +145,18 @@ class MultiTransformsTest {
             assertEquals(unzipped, unzippedIntermediate)
         }
     }
+
     @Test fun unzipIntermediateDoesNotIterateSourceMultipleTimes() {
         val source = sequenceOf(1 to "a", 2 to "b", 3 to "c")
         val unzipped = source.unzip()
         val unzippedIntermediate = source.constrainOnce().unzipIntermediate().map { it.toList() }
         assertEquals(unzipped, unzippedIntermediate)
     }
+
     @Test fun unzipIntermediateDoesNotIterateSourceBeforeItHasTo() {
         Sequence<Pair<Int, String>>(mootProvider).unzipIntermediate()
     }
+
     @Test fun unzipIntermediateDoesNotIterateSourceFurtherThanItHasTo() {
         var numEnumerated = 0
         val source = sequenceOf(1 to "a", 2 to "b", 3 to "c", 4 to "d").onEach { numEnumerated++ }
@@ -151,6 +175,7 @@ class MultiTransformsTest {
         assertEquals(3, firsts.next())
         assertEquals(3, numEnumerated)
     }
+
     @Test fun unzipIntermediateForgetsSourceElements() = asyncTest {
         val (source, references) = generateSequenceAndWeakReferences(3) { Pair(Any(), Any()) }
         val (firsts, seconds) = source.unzipIntermediate().map { it.iterator() }
@@ -161,11 +186,5 @@ class MultiTransformsTest {
         references[1].assertTargetOnlyReclaimableAfter { firsts.dismissNext() }
         firsts.dismissNext()
         references[2].assertTargetOnlyReclaimableAfter { seconds.dismissNext() }
-    }
-
-    private fun thenHasTransformedCorrectly(transformed: List<Sequence<Int>>) {
-        assertEquals(transforms.size, transformed.size)
-        for ((transform, result) in transforms.zip(transformed))
-            result.assertValues(*transform(source).toList().toTypedArray())
     }
 }
