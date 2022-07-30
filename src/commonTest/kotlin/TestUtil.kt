@@ -8,6 +8,12 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 /**
+ * Can be used as a "proper object" (that can be the target of a [WeakReference]) when wanting a [value] of a type [T]
+ * which cannot be weak-referenced.
+ */
+class Wrapper<T>(val value: T)
+
+/**
  * Retrieve the next element from the receiver iterator [this] – and discard it. Useful for tests relying on garbage
  * collection, as using this function – as opposed to calling `.next()` directly – helps them avoid creating a (hidden)
  * strong reference to the element (which would foil garbage collection).
@@ -46,6 +52,3 @@ internal suspend fun WeakReference<Any>.assertTargetNotReclaimable() = assertFal
 internal suspend fun WeakReference<Any>.assertTargetReclaimable() = assertTrue(targetIsReclaimable())
 private suspend fun WeakReference<Any>.targetIsReclaimable(): Boolean =
     coroutineScope { tryToAchieveByForcingGc { targetOrNull == null } }
-
-internal suspend fun <T : Any> Collection<WeakReference<T>>.assertAllTargetsReclaimable() =
-    assertTrue(coroutineScope { tryToAchieveByForcingGc { all { it.targetOrNull == null } } })

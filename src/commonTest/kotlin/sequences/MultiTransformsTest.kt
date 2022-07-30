@@ -103,16 +103,13 @@ class MultiTransformsTest {
         sequenceOf(1, 2).partitionIntermediate(scriptedFunction(1 to true, 2 to false)).map { it.toList() }
     )
     @Test fun partitionIntermediateForgetsSourceElements() = asyncTest {
-        val (source, references) = generateSequenceAndWeakReferences(3) { Any() }
-        val iterators = source.partitionIntermediate { true }.map { it.iterator() }
+        val (source, references) = generateSequenceAndWeakReferences(3) { Wrapper(it) }
+        val (evens, odds) = source.partitionIntermediate { it.value % 2 == 0 }.map { it.iterator() }
 
-        repeat(3) { iterators.first.dismissNext() }
-        assertEquals(3, references.size)
-        assertFalse(iterators.second.hasNext())
-        references.assertAllTargetsReclaimable()
-
-        // Prevent earlier garbage collection, which would make the test pass for the wrong reason
-        @Suppress("UNUSED_EXPRESSION") iterators
+        evens.dismissNext()
+        references[0].assertTargetOnlyReclaimableAfter { odds.dismissNext() }
+        references[1].assertTargetOnlyReclaimableAfter { evens.dismissNext() }
+        references[2].assertTargetOnlyReclaimableAfter { assertFalse(odds.hasNext()) }
     }
 
     @Test fun unzipIntermediateUnzips() {
