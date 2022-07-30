@@ -152,15 +152,15 @@ class MultiTransformsTest {
         assertEquals(3, numEnumerated)
     }
     @Test fun unzipIntermediateForgetsSourceElements() = asyncTest {
-        val (source, references) = generateSequenceAndWeakReferences(3) { Pair(it, 2 * it) }
-        val iterators = source.unzipIntermediate().map { it.iterator() }
+        val (source, references) = generateSequenceAndWeakReferences(3) { Pair(Any(), Any()) }
+        val (firsts, seconds) = source.unzipIntermediate().map { it.iterator() }
 
-        iterators.first.dismissNext()
-        references[0].assertTargetOnlyReclaimableAfter { iterators.second.dismissNext() }
-        iterators.second.dismissNext()
-        references[1].assertTargetOnlyReclaimableAfter { iterators.first.dismissNext() }
-        iterators.first.dismissNext()
-        references[2].assertTargetOnlyReclaimableAfter { iterators.second.dismissNext() }
+        firsts.dismissNext()
+        references[0].assertTargetOnlyReclaimableAfter { seconds.dismissNext() }
+        seconds.dismissNext()
+        references[1].assertTargetOnlyReclaimableAfter { firsts.dismissNext() }
+        firsts.dismissNext()
+        references[2].assertTargetOnlyReclaimableAfter { seconds.dismissNext() }
     }
 
     private fun thenHasTransformedCorrectly(transformed: List<Sequence<Int>>) {
