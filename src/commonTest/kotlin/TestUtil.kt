@@ -58,3 +58,22 @@ internal suspend fun WeakReference<Any>.assertTargetNotReclaimable() = assertFal
 internal suspend fun WeakReference<Any>.assertTargetReclaimable() = assertTrue(targetIsReclaimable())
 private suspend fun WeakReference<Any>.targetIsReclaimable(): Boolean =
     coroutineScope { tryToAchieveByForcingGc { targetOrNull == null } }
+
+/**
+ * Executes the given [block], asserting that the targets of all weak reference in the receiver collection [this] are
+ * reclaimable after that, having not been reclaimable prior to that. The part typically needed for the logic of actual
+ * tests is asserting reclaimability, and that can be achieved by [assertAllTargetsReclaimable]; asserting prior
+ * non-reclaimability usually only serves to help ensure that code behaves as expected and that tests don't pass for the
+ * wrong reason.
+ */
+internal suspend fun Collection<WeakReference<Any>>.assertTargetsOnlyReclaimableAfter(block: () -> Unit) {
+    assertNoTargetReclaimable()
+    block()
+    assertAllTargetsReclaimable()
+}
+// Not normally required for the logic of actual tests, but helps ensure that code behaves as expected and that tests
+// don't pass for the wrong reason.
+internal suspend fun Collection<WeakReference<Any>>.assertNoTargetReclaimable() =
+    assertTrue(coroutineScope { tryToAchieveByForcingGc { none { it.targetOrNull == null } } })
+internal suspend fun Collection<WeakReference<Any>>.assertAllTargetsReclaimable() =
+    assertTrue(coroutineScope { tryToAchieveByForcingGc { all { it.targetOrNull == null } } })
