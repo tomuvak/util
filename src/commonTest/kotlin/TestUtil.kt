@@ -41,11 +41,19 @@ internal fun <T : Any> generateSequenceAndWeakReferences(
     } }.constrainOnce() to references
 }
 
+/**
+ * Executes the given [block], asserting that the target of the receiver weak reference [this] is reclaimable after
+ * that, having not been reclaimable prior to that. The part typically needed for the logic of actual tests is asserting
+ * reclaimability, and that can be achieved by [assertTargetReclaimable]; asserting prior non-reclaimability usually
+ * only serves to help ensure that code behaves as expected and that tests don't pass for the wrong reason.
+ */
 internal suspend fun WeakReference<Any>.assertTargetOnlyReclaimableAfter(block: () -> Unit) {
     assertTargetNotReclaimable()
     block()
     assertTargetReclaimable()
 }
+// Not normally required for the logic of actual tests, but helps ensure that code behaves as expected and that tests
+// don't pass for the wrong reason.
 internal suspend fun WeakReference<Any>.assertTargetNotReclaimable() = assertFalse(targetIsReclaimable())
 internal suspend fun WeakReference<Any>.assertTargetReclaimable() = assertTrue(targetIsReclaimable())
 private suspend fun WeakReference<Any>.targetIsReclaimable(): Boolean =
