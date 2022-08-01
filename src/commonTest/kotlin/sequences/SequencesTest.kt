@@ -16,13 +16,16 @@ class SequencesTest {
     }) { assertStartsWith(1) }
 
     @Test fun takeWhileIsInstance() {
-        sequenceOf<Number>().testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }
-        sequenceOf<Number>(1).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues(1) }
-        sequenceOf<Number>(1L).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }
-        sequenceOf<Number>(1, 2).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues(1, 2) }
-        sequenceOf<Number>(1, 2L).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues(1) }
-        sequenceOf<Number>(1L, 2).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }
-        sequenceOf<Number>(1L, 2L).testIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertValues() }
+        fun test(vararg elements: Number, continuation: Sequence<Int>.() -> Unit) =
+            elements.asSequence().testIntermediateOperation({ takeWhileIsInstance<Int>() }) { continuation() }
+
+        test() { assertValues() }
+        test(1) { assertValues(1) }
+        test(1L) { assertValues() }
+        test(1, 2) { assertValues(1, 2) }
+        test(1, 2L) { assertValues(1) }
+        test(1L, 2) { assertValues() }
+        test(1L, 2L) { assertValues() }
     }
     @Test fun takeWhileIsInstanceEnumeratesSequenceLazily() {
         emptySequence<Number>().testLazyIntermediateOperation({ takeWhileIsInstance<Int>() }) { assertStartsWith() }
