@@ -134,4 +134,18 @@ class TakeLastWhileTest {
                     assertEquals(elements.takeLastWhile(predicate), it)
                 }
     }
+
+    @Test fun takeLastWhileIsInstanceTakesLastWhileIsInstance() {
+        fun test(vararg elements: Number, continuation: List<Int>.() -> Unit) =
+            elements.asSequence().testTerminalOperation({ takeLastWhileIsInstance<Int>() }) { it.continuation() }
+        fun List<Int>.then(vararg elements: Int) = assertEquals(elements.toList(), this)
+
+        test() { then() }
+        test(1) { then(1) }
+        test(1L) { then() }
+        test(1, 2) { then(1, 2) }
+        test(1, 2L) { then() }
+        test(1L, 2) { then(2) }
+        test(1L, 2L) { then() }
+    }
 }

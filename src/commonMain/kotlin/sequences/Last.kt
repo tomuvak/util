@@ -166,3 +166,6 @@ fun <T> Sequence<T>.takeLastWhile(predicate: (T) -> Boolean): List<T> {
     for (element in this) if (predicate(element)) buffer.add(element) else buffer.clear()
     return buffer
 }
+
+@Suppress("UNCHECKED_CAST")
+inline fun <reified T> Sequence<Any?>.takeLastWhileIsInstance(): List<T> = takeLastWhile { it is T } as List<T>
