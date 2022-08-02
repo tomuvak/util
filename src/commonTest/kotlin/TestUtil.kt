@@ -1,6 +1,6 @@
 package com.tomuvak.util
 
-import com.tomuvak.testing.gc.tryToAchieveByForcingGc
+import com.tomuvak.testing.gc.core.tryToAchieveByForcingGc
 import com.tomuvak.weakReference.WeakReference
 import kotlinx.coroutines.coroutineScope
 import kotlin.test.assertFalse
