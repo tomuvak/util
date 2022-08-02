@@ -28,7 +28,8 @@ for the JVM through the
 offered by the standard library for
 [Native](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native.ref/-weak-reference/). A
 [unified interface for it](https://github.com/tomuvak/util/commit/8dcf88b523b8ad36a3565a1f229411f335a032d3) which can be
-used seamlessly in multi-platform code is strongly called for.
+used seamlessly in multi-platform code is strongly called for, and could (and used to) be part of this library (it was
+only extracted to [a separate library](https://github.com/tomuvak/weak-reference) for a technical reason).
 Again, all according to the author's subjective view.
 
 Criterion no. 1 alone is not enough for inclusion in this library. There's lots of functionality that could reasonably
