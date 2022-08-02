@@ -40,7 +40,7 @@ kotlin {
             }
             testTask {
                 useMocha {
-                    timeout = "120s"
+                    timeout = "12s"
                 }
             }
         }
@@ -62,7 +62,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 implementation("com.tomuvak.testing-assertions:testing-assertions:0.0.4")
                 implementation("com.tomuvak.testing-coroutines:testing-coroutines:0.0.1")
-                implementation("com.tomuvak.testing-gc:testing-gc:0.0.1")
+                implementation("com.tomuvak.testing-gc:testing-gc:0.0.2")
             }
         }
         val jvmMain by getting
