@@ -2,10 +2,10 @@ package com.tomuvak.util.sequences
 
 import com.tomuvak.testing.assertions.*
 import com.tomuvak.testing.coroutines.asyncTest
-import com.tomuvak.util.assertTargetOnlyReclaimableAfter
-import com.tomuvak.util.assertTargetsOnlyReclaimableAfter
-import com.tomuvak.util.dismissNext
-import com.tomuvak.util.generateSequenceAndWeakReferences
+import com.tomuvak.testing.gc.assertTargetOnlyReclaimableAfter
+import com.tomuvak.testing.gc.assertTargetsOnlyReclaimableAfter
+import com.tomuvak.testing.gc.dismissNext
+import com.tomuvak.testing.gc.generateSequenceAndWeakReferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

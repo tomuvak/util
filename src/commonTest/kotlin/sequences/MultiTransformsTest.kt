@@ -5,7 +5,11 @@ import com.tomuvak.testing.assertions.mootFunction
 import com.tomuvak.testing.assertions.mootProvider
 import com.tomuvak.testing.assertions.scriptedFunction
 import com.tomuvak.testing.coroutines.asyncTest
-import com.tomuvak.util.*
+import com.tomuvak.testing.gc.Wrapper
+import com.tomuvak.testing.gc.assertTargetOnlyReclaimableAfter
+import com.tomuvak.testing.gc.dismissNext
+import com.tomuvak.testing.gc.generateSequenceAndWeakReferences
+import com.tomuvak.util.map
 import kotlin.test.*
 
 class TransformTest {
