@@ -72,7 +72,7 @@ class DropLastTest {
     }
 }
 
-class DropLastWhile {
+class DropLastWhileTest {
     @Test fun dropLastWhileDoesNotIterateSequenceBeforeItHasTo() {
         Sequence<Int>(mootProvider).dropLastWhile(mootFunction)
     }
