@@ -6,7 +6,6 @@ import com.tomuvak.testing.assertions.scriptedFunction
 import com.tomuvak.testing.assertions.scriptedProvider
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class MapsTest {
     companion object {
@@ -24,52 +23,37 @@ class MapsTest {
     private val nullableMap: Map<String, String?> get() = mapOf(Key to Value, KeyWithNullValue to null)
     private val oneCallNullableMap: Map<String, String?> get() = oneCallMap(Value)
 
-    @Test fun inNonNullableMapGetOrValueGets() = assertEquals(Value, nonNullableMap.getOr(Key, Default))
-    @Test fun inNonNullableMapGetOrProviderGets() = assertEquals(Value, nonNullableMap.getOr(Key, mootProvider))
-    @Test fun inNonNullableMapGetOrFunctionGets() = assertEquals(Value, nonNullableMap.getOr(Key, mootFunction))
+    @Test fun inNonNullableMapGetOrGets() = testGetOr(Key, Value) { nonNullableMap }
+    @Test fun inNonNullableMapGetOrOnlyRequiresOneCallToGet() = testGetOr(Key, Value) { oneCallNonNullableMap }
+    @Test fun inNonNullableMapGetOrReturnsDefault() = testGetOr(NonExistingKey, Default) { nonNullableMap }
+    @Test fun inNonNullableMapGetOrOnlyRequiresOneCallToReturnDefault() =
+        testGetOr(Key, Default) { oneCallEmptyNonNullableMap }
 
-    @Test fun inNonNullableMapGetOrValueOnlyRequiresOneCallToGet() =
-        assertEquals(Value, oneCallNonNullableMap.getOr(Key, Default))
-    @Test fun inNonNullableMapGetOrProviderOnlyRequiresOneCallToGet() =
-        assertEquals(Value, oneCallNonNullableMap.getOr(Key, mootProvider))
-    @Test fun inNonNullableMapGetOrFunctionOnlyRequiresOneCallToGet() =
-        assertEquals(Value, oneCallNonNullableMap.getOr(Key, mootFunction))
+    @Test fun inNullableMapGetOrGets() = testGetOr(Key, Value) { nullableMap }
+    @Test fun inNullableMapGetOrOnlyRequiresOneCallToGetNonNull() = testGetOr(Key, Value) { oneCallNullableMap }
+    @Test fun inNullableMapGetOrGetsNull() = testGetOr(KeyWithNullValue, null) { nullableMap }
+    @Test fun inNullableMapGetOrReturnsDefault() = testGetOr(NonExistingKey, Default) { nullableMap }
 
-    @Test fun inNonNullableMapGetOrValueReturnsDefault() =
-        assertEquals(Default, nonNullableMap.getOr(NonExistingKey, Default))
-    @Test fun inNonNullableMapGetOrProviderReturnsDefault() =
-        assertEquals(Default, nonNullableMap.getOr(NonExistingKey, scriptedProvider(Default)))
-    @Test fun inNonNullableMapGetOrFunctionReturnsDefault() =
-        assertEquals(Default, nonNullableMap.getOr(NonExistingKey, scriptedFunction(NonExistingKey to Default)))
+    private inline fun <reified V> testGetOr(key: String, expectedValue: V, mapProvider: () -> Map<String, V>) =
+        test(mapProvider, key, expectedValue, Map<String, V>::getOr, Map<String, V>::getOr, Map<String, V>::getOr)
 
-    @Test fun inNonNullableMapGetOrValueOnlyRequiresOneCallToReturnDefault() =
-        assertEquals(Default, oneCallEmptyNonNullableMap.getOr(Key, Default))
-    @Test fun inNonNullableMapGetOrProviderOnlyRequiresOneCallToReturnDefault() =
-        assertEquals(Default, oneCallEmptyNonNullableMap.getOr(Key, scriptedProvider(Default)))
-    @Test fun inNonNullableMapGetOrFunctionOnlyRequiresOneCallToReturnDefault() =
-        assertEquals(Default, oneCallEmptyNonNullableMap.getOr(Key, scriptedFunction(Key to Default)))
+    private inline fun <M : Map<String, V>, reified V> test(
+        mapProvider: () -> M,
+        key: String,
+        expectedValue: V,
+        valueOverloadToTest: M.(String, V) -> V,
+        providerOverloadToTest: M.(String, () -> V) -> V,
+        functionOverloadToTest: M.(String, (String) -> V) -> V
+    ) {
+        val default = Default as V
+        val isDefault = expectedValue == default
+        val provider = if (isDefault) scriptedProvider(default) else mootProvider
+        val function = if (isDefault) scriptedFunction(key to default) else mootFunction
 
-    @Test fun inNullableMapGetOrValueGets() = assertEquals(Value, nullableMap.getOr(Key, Default))
-    @Test fun inNullableMapGetOrProviderGets() = assertEquals(Value, nullableMap.getOr(Key, mootProvider))
-    @Test fun inNullableMapGetOrFunctionGets() = assertEquals(Value, nullableMap.getOr(Key, mootFunction))
-
-    @Test fun inNullableMapGetOrValueOnlyRequiresOneCallToGetNonNull() =
-        assertEquals(Value, oneCallNullableMap.getOr(Key, Default))
-    @Test fun inNullableMapGetOrProviderOnlyRequiresOneCallToGetNonNull() =
-        assertEquals(Value, oneCallNullableMap.getOr(Key, mootProvider))
-    @Test fun inNullableMapGetOrFunctionOnlyRequiresOneCallToGetNonNull() =
-        assertEquals(Value, oneCallNullableMap.getOr(Key, mootFunction))
-
-    @Test fun inNullableMapGetOrValueGetsNull() = assertNull(nullableMap.getOr(KeyWithNullValue, Default))
-    @Test fun inNullableMapGetOrProviderGetsNull() = assertNull(nullableMap.getOr(KeyWithNullValue, mootProvider))
-    @Test fun inNullableMapGetOrFunctionGetsNull() = assertNull(nullableMap.getOr(KeyWithNullValue, mootFunction))
-
-    @Test fun inNullableMapGetOrValueReturnsDefault() =
-        assertEquals(Default, nullableMap.getOr(NonExistingKey, Default))
-    @Test fun inNullableMapGetOrProviderReturnsDefault() =
-        assertEquals(Default, nullableMap.getOr(NonExistingKey, scriptedProvider(Default)))
-    @Test fun inNullableMapGetOrFunctionReturnsDefault() =
-        assertEquals(Default, nullableMap.getOr(NonExistingKey, scriptedFunction(NonExistingKey to Default)))
+        assertEquals(expectedValue, mapProvider().valueOverloadToTest(key, default))
+        assertEquals(expectedValue, mapProvider().providerOverloadToTest(key, provider))
+        assertEquals(expectedValue, mapProvider().functionOverloadToTest(key, function))
+    }
 
     private fun <V> oneCallMap(valueOrNull: V?): Map<String, V> = object : Map<String, V> {
         private val getFunction: (String) -> V? = scriptedFunction(Key to valueOrNull)
