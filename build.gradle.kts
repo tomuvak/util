@@ -62,6 +62,7 @@ kotlin {
                 implementation("com.tomuvak.testing-assertions:testing-assertions:0.0.4")
                 implementation("com.tomuvak.testing-coroutines:testing-coroutines:0.0.1")
                 implementation("com.tomuvak.testing-gc:testing-gc:0.0.3")
+                implementation("com.tomuvak.weak-reference:weak-reference:0.0.2")
             }
         }
         val jvmMain by getting
