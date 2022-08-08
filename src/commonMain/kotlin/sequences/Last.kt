@@ -167,5 +167,11 @@ fun <T> Sequence<T>.takeLastWhile(predicate: (T) -> Boolean): List<T> {
     return buffer
 }
 
+/**
+ * Returns the longest suffix of the receiver sequence [this] all of whose elements are of type [T].
+ *
+ * This operation is _terminal_ (as for a general sequence this cannot be computed without iterating over all of the
+ * elements. For this reason it also returns the result as a list rather than as a sequence).
+ */
 @Suppress("UNCHECKED_CAST")
 inline fun <reified T> Sequence<Any?>.takeLastWhileIsInstance(): List<T> = takeLastWhile { it is T } as List<T>
