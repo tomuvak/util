@@ -1,9 +1,9 @@
 package com.tomuvak.util.sequences
 
-import com.tomuvak.testing.assertions.MockFunction
-import com.tomuvak.testing.assertions.mootFunction
-import com.tomuvak.testing.assertions.testLazyTerminalOperation
-import com.tomuvak.testing.assertions.testTerminalOperation
+import com.tomuvak.testing.MockFunction
+import com.tomuvak.testing.mootFunction
+import com.tomuvak.testing.testLazyTerminalOperation
+import com.tomuvak.testing.testTerminalOperation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

@@ -1,6 +1,6 @@
 package com.tomuvak.util.sequences
 
-import com.tomuvak.testing.assertions.*
+import com.tomuvak.testing.*
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull

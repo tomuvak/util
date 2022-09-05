@@ -1,6 +1,6 @@
 package com.tomuvak.util
 
-import com.tomuvak.testing.assertions.assertFailsWithTypeAndMessageContaining
+import com.tomuvak.testing.assertFailsWithTypeAndMessageContaining
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

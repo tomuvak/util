@@ -1,7 +1,7 @@
 package com.tomuvak.util
 
-import com.tomuvak.testing.assertions.mootProvider
-import com.tomuvak.testing.assertions.scriptedProvider
+import com.tomuvak.testing.mootProvider
+import com.tomuvak.testing.scriptedProvider
 import kotlin.test.*
 
 class IteratorsTest {

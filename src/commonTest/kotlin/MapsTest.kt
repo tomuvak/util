@@ -1,9 +1,9 @@
 package com.tomuvak.util
 
-import com.tomuvak.testing.assertions.mootFunction
-import com.tomuvak.testing.assertions.mootProvider
-import com.tomuvak.testing.assertions.scriptedFunction
-import com.tomuvak.testing.assertions.scriptedProvider
+import com.tomuvak.testing.mootFunction
+import com.tomuvak.testing.mootProvider
+import com.tomuvak.testing.scriptedFunction
+import com.tomuvak.testing.scriptedProvider
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

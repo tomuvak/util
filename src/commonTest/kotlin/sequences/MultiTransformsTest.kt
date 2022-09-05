@@ -1,9 +1,9 @@
 package com.tomuvak.util.sequences
 
-import com.tomuvak.testing.assertions.assertValues
-import com.tomuvak.testing.assertions.mootFunction
-import com.tomuvak.testing.assertions.mootProvider
-import com.tomuvak.testing.assertions.scriptedFunction
+import com.tomuvak.testing.assertValues
+import com.tomuvak.testing.mootFunction
+import com.tomuvak.testing.mootProvider
+import com.tomuvak.testing.scriptedFunction
 import com.tomuvak.testing.coroutines.asyncTest
 import com.tomuvak.testing.gc.Wrapper
 import com.tomuvak.testing.gc.assertTargetOnlyReclaimableAfter

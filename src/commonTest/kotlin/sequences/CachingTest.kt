@@ -1,9 +1,9 @@
 package com.tomuvak.util.sequences
 
-import com.tomuvak.testing.assertions.assertFailsWithTypeAndMessageContaining
-import com.tomuvak.testing.assertions.assertStartsWith
-import com.tomuvak.testing.assertions.assertValues
-import com.tomuvak.testing.assertions.mootProvider
+import com.tomuvak.testing.assertFailsWithTypeAndMessageContaining
+import com.tomuvak.testing.assertStartsWith
+import com.tomuvak.testing.assertValues
+import com.tomuvak.testing.mootProvider
 import com.tomuvak.util.nextOrNull
 import kotlin.test.Test
 import kotlin.test.assertEquals

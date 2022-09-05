@@ -1,7 +1,7 @@
 package com.tomuvak.util
 
-import com.tomuvak.testing.assertions.assertValues
-import com.tomuvak.testing.assertions.scriptedFunction
+import com.tomuvak.testing.assertValues
+import com.tomuvak.testing.scriptedFunction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

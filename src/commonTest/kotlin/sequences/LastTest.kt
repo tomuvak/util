@@ -1,6 +1,6 @@
 package com.tomuvak.util.sequences
 
-import com.tomuvak.testing.assertions.*
+import com.tomuvak.testing.*
 import com.tomuvak.testing.coroutines.asyncTest
 import com.tomuvak.testing.gc.assertTargetOnlyReclaimableAfter
 import com.tomuvak.testing.gc.assertTargetsOnlyReclaimableAfter

@@ -1,8 +1,8 @@
 package com.tomuvak.util
 
-import com.tomuvak.testing.assertions.assertFailsWithTypeAndMessageContaining
-import com.tomuvak.testing.assertions.mootFunction
-import com.tomuvak.testing.assertions.mootProvider
+import com.tomuvak.testing.assertFailsWithTypeAndMessageContaining
+import com.tomuvak.testing.mootFunction
+import com.tomuvak.testing.mootProvider
 import kotlin.collections.dropLast
 import kotlin.collections.takeLast
 import kotlin.test.Test
