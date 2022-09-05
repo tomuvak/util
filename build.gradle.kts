@@ -56,8 +56,8 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation("com.tomuvak.testing:testing:0.0.7")
                 implementation("com.tomuvak.testing-coroutines:testing-coroutines:0.0.3")
-                implementation("com.tomuvak.testing-gc:testing-gc:0.0.4")
-                implementation("com.tomuvak.weak-reference:weak-reference:0.0.3")
+                implementation("com.tomuvak.testing-gc:testing-gc:0.0.5")
+                implementation("com.tomuvak.weak-reference:weak-reference:0.0.4")
             }
         }
 
