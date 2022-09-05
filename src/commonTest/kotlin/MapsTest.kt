@@ -57,15 +57,30 @@ class MapsTest {
         nullableMutableMap.testPutIfAbsentAndGetWithSideEffects(NonExistingKey, Default)
 
     private inline fun <reified V> testGetOr(key: String, expectedValue: V, mapProvider: () -> Map<String, V>) =
-        test(mapProvider, key, expectedValue, Map<String, V>::getOr, Map<String, V>::getOr, Map<String, V>::getOr)
+        test(
+            mapProvider, key, expectedValue,
+            // Use the following lines instead of the workaround lines below them once possible
+            // (should be possible as of 1.8.0, see https://youtrack.jetbrains.com/issue/KT-53672):
+            // Map<String, V>::getOr,
+            // Map<String, V>::getOr,
+            // Map<String, V>::getOr
+            { key, default -> getOr(key, default) },
+            { key, defaultProvider -> getOr(key, defaultProvider) },
+            { key, defaultProvider -> getOr(key, defaultProvider) }
+        )
 
     private inline fun <reified V> testPutIfAbsentAndGet(
         key: String, expectedValue: V, mapProvider: () -> MutableMap<String, V>
     ) = test(
         mapProvider, key, expectedValue,
-        MutableMap<String, V>::putIfAbsentAndGet,
-        MutableMap<String, V>::putIfAbsentAndGet,
-        MutableMap<String, V>::putIfAbsentAndGet
+        // Use the following lines instead of the workaround lines below them once possible
+        // (should be possible as of 1.8.0, see https://youtrack.jetbrains.com/issue/KT-53672):
+        // MutableMap<String, V>::putIfAbsentAndGet,
+        // MutableMap<String, V>::putIfAbsentAndGet,
+        // MutableMap<String, V>::putIfAbsentAndGet
+        { key, default -> putIfAbsentAndGet(key, default) },
+        { key, defaultProvider -> putIfAbsentAndGet(key, defaultProvider) },
+        { key, defaultProvider -> putIfAbsentAndGet(key, defaultProvider) }
     )
 
     private inline fun <reified V> MutableMap<String, V>.testPutIfAbsentAndGetWithSideEffects(
@@ -75,9 +90,14 @@ class MapsTest {
         expectedResult[key] = expectedValue
         test(
             ::toMutableMap, key, expectedValue,
-            MutableMap<String, V>::putIfAbsentAndGet,
-            MutableMap<String, V>::putIfAbsentAndGet,
-            MutableMap<String, V>::putIfAbsentAndGet
+            // Use the following lines instead of the workaround lines below them once possible
+            // (should be possible as of 1.8.0, see https://youtrack.jetbrains.com/issue/KT-53672):
+            // MutableMap<String, V>::putIfAbsentAndGet,
+            // MutableMap<String, V>::putIfAbsentAndGet,
+            // MutableMap<String, V>::putIfAbsentAndGet
+            { key, default -> putIfAbsentAndGet(key, default) },
+            { key, defaultProvider -> putIfAbsentAndGet(key, defaultProvider) },
+            { key, defaultProvider -> putIfAbsentAndGet(key, defaultProvider) }
         ) { assertEquals(expectedResult, it) }
     }
 
